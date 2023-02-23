@@ -7,6 +7,6 @@ Flask
 numpy
 matplotlib
 Pillow
-ultralytics
+ultralytics==8.0.20
 Werkzeug
 gunicorn

@@ -24,9 +24,8 @@ RUN apt-get update && apt-get install --fix-missing -y \
     libgl1-mesa-glx \
     libglib2.0-0
 
-COPY requirements.txt /app/
 RUN pip install -r /app/requirements.txt
-
+EXPOSE 80 442 5000 8080
 
 # Run app.py when the container launches
 CMD ["python", "main.py"]
