@@ -3,6 +3,7 @@ from inference import ObjectDetection
 import os
 import base64
 from io import BytesIO
+from PIL import Image
 
 app = Flask(__name__)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -23,10 +24,11 @@ def prediction():
     except:
         errors.append("Unable to read file. Please make sure it's valid and try again.")
     # prediction of model
-    class_name = ObjectDetection()
-    image_result, type = class_name.__call__(currentfile)
+    model = ObjectDetection()
+    prediction, type = model(currentfile)
 
     buffered = BytesIO()
+    image_result = Image.fromarray(prediction)
     image_result = image_result.resize((400, 400))
     image_result.save(buffered, format="JPEG")
     image_memory = base64.b64encode(buffered.getvalue())
@@ -37,4 +39,4 @@ def prediction():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=os.getenv("PORT", default=5000))
+    app.run(host="0.0.0.0", debug=True, port=os.getenv("PORT", default=5000))
