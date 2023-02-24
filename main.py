@@ -23,16 +23,16 @@ def prediction():
             currentfile = request.files.get("file", "")
             # prediction of model
         model = ObjectDetection()
-        prediction, types = model(currentfile)
+        prediction, classes = model(currentfile)
 
         buffered = BytesIO()
         image_result = Image.fromarray(prediction)
         image_result = image_result.resize((400, 400))
         image_result.save(buffered, format="JPEG")
         image_memory = base64.b64encode(buffered.getvalue())
-
+        print("classes", classes)
         return render_template(
-            "result.html", types=", ".join(types), img_data=image_memory.decode("utf-8")
+            "result.html", classes=", ".join(classes), img_data=image_memory.decode("utf-8")
         )
 
     except Exception as e:
