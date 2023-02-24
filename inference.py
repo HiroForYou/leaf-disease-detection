@@ -1,6 +1,6 @@
 import torch
 from ultralytics import YOLO
-from PIL import Image, ImageDraw
+from PIL import Image
 from numpy import asarray
 import numpy as np
 import cv2
@@ -33,12 +33,7 @@ class ObjectDetection:
         Loads Yolo5 model from pytorch hub.
         :return: Trained Pytorch model.
         """
-        # model = torch.hub.load("ultralytics/yolov8", "yolov8s", pretrained=False)
-        # model.load_state_dict(torch.load("./weights/best.pt"))
-        # model.eval()
         model = YOLO("./weights/best.pt")
-        # -----------------------------------------------------------------------------
-
         return model
 
     def score_frame(self, frame):
@@ -72,10 +67,9 @@ class ObjectDetection:
         :param frame: Frame which has been scored.
         :return: Frame with bounding boxes and labels ploted on it.
         """
-        # frame = Image.fromarray(frame)
-        labels, cord = results
-        n = len(labels)
-        # x_shape, y_shape = frame.shape[1], frame.shape[0]
+        labels_number, cord = results
+        labels_text = []
+        n = len(labels_number)
         for i in range(n):
             row = cord[i]
             if row[4] >= 0.2:
@@ -85,27 +79,21 @@ class ObjectDetection:
                     int(row[2]),
                     int(row[3]),
                 )
-                bgr = (0, 255, 0)  # ----------------------------
-                """ frame = Image.fromarray(frame)
-                draw = ImageDraw.Draw(frame)
-                draw.rectangle([(x1, y1), (x2, y2)], outline="red")
-                buffer = io.BytesIO()
-                frame.save(buffer, format='JPEG')
-                buffer.seek(0)
-                frame = Image.open(buffer) """
+                bgr = (0, 255, 0)
                 cv2.rectangle(frame, (x1, y1), (x2, y2), bgr, 2)
+                label_text = self.class_to_label(labels_number[i])
                 cv2.putText(
                     frame,
-                    self.class_to_label(labels[i]),
+                    label_text,
                     (x1, y1),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.9,
                     bgr,
                     2,
                 )
-                lab = self.class_to_label(labels[i])
+                labels_text.append(label_text)
 
-        return frame, lab
+        return frame, labels_text
 
     def __call__(self, image_file):
         """
@@ -113,18 +101,11 @@ class ObjectDetection:
         and write the output into a new file.
         :return: void
         """
-        # frame = cv2.imread("image/image_leafblight.JPG")
-        frame = Image.open(image_file)  ############
+        frame = Image.open(image_file)
         frame = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
         frame = asarray(frame)
         results = self.score_frame(frame)
         frame, lab = self.plot_boxes(results, frame)
-        # print(lab)
-        # cv2.imshow("img", frame)  #comment
-        # cv2.waitKey(0)            #comment
-
-        # closing all open windows
-        # cv2.destroyAllWindows()   #comment
         return frame, lab
 
 

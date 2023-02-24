@@ -23,7 +23,7 @@ def prediction():
             currentfile = request.files.get("file", "")
             # prediction of model
         model = ObjectDetection()
-        prediction, type = model(currentfile)
+        prediction, types = model(currentfile)
 
         buffered = BytesIO()
         image_result = Image.fromarray(prediction)
@@ -32,12 +32,11 @@ def prediction():
         image_memory = base64.b64encode(buffered.getvalue())
 
         return render_template(
-            "result.html", type=type, img_data=image_memory.decode("utf-8")
+            "result.html", types=", ".join(types), img_data=image_memory.decode("utf-8")
         )
 
-    except:
-        errors.append("Unable to read file. Please make sure it's valid and try again.")
-        return {"response": f"Ocurriendo los siguientes errores: {errors}"}
+    except Exception as e:
+        return {"response": f"Ocurrieron los siguientes errores: {e}"}
 
 
 if __name__ == "__main__":
